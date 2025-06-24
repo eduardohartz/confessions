@@ -1,5 +1,5 @@
 import type { ClassValue } from "clsx"
-import crypto from "node:crypto"
+import crypto from "crypto"
 import { clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
