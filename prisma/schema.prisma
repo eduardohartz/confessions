@@ -1,0 +1,31 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model Confession {
+    id                  Int      @id @default(autoincrement())
+    content             String   @db.Text
+    nickname            String?  @db.VarChar(100)
+    country             String?  @db.VarChar(100)
+    isNicknameAnonymous Boolean  @default(false) @map("is_nickname_anonymous")
+    isCountryAnonymous  Boolean  @default(false) @map("is_country_anonymous")
+    createdAt           DateTime @default(now()) @map("created_at")
+    ipHash              String   @map("ip_hash") @db.VarChar(64)
+
+    @@map("confessions")
+}
+
+model RateLimit {
+    id             Int      @id @default(autoincrement())
+    ipHash         String   @unique @map("ip_hash") @db.VarChar(64)
+    lastSubmission DateTime @default(now()) @map("last_submission")
+
+    @@index([ipHash])
+    @@index([lastSubmission])
+    @@map("rate_limits")
+}
