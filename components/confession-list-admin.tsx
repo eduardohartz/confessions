@@ -120,10 +120,6 @@ export default function ConfessionListAdmin({ refresh, password }: { refresh: nu
   }
 
   const handleBlock = async (confessionId: number) => {
-    if (!confirm("Are you sure you want to block the IP address associated with this confession?")) {
-      return
-    }
-
     setBlockingIds((prev) => new Set(prev).add(confessionId))
 
     try {
@@ -137,7 +133,6 @@ export default function ConfessionListAdmin({ refresh, password }: { refresh: nu
       })
 
       if (response.ok) {
-        alert("IP address blocked successfully")
       } else {
         const error = await response.json()
         alert(`Failed to block IP: ${error.error}`)
@@ -151,6 +146,7 @@ export default function ConfessionListAdmin({ refresh, password }: { refresh: nu
         newSet.delete(confessionId)
         return newSet
       })
+      fetchConfessions(pagination.currentPage, pageSize, true)
     }
   }
 
