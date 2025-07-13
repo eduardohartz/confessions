@@ -29,6 +29,7 @@ export function verifyConfession(confession: string): boolean {
 
   if (/([^\s])\1{10,}/.test(trimmedConfession)) return false
   if ((trimmedConfession.match(/[\p{Emoji}]/gu)?.length ?? 0) > 10) return false
+  if (/\b\d{6,}\b/.test(trimmedConfession)) return false
 
   const forbiddenWords = [
     "https://",
