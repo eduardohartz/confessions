@@ -15,23 +15,7 @@ export function hashIP(ip: string): string {
 }
 
 export function getClientIP(request: Request): string {
-  const cloudflareIP = request.headers.get("cf-connecting-ip")
-  const forwarded = request.headers.get("x-forwarded-for")
-  const realIP = request.headers.get("x-real-ip")
-
-  if (cloudflareIP) {
-    return cloudflareIP
-  }
-
-  if (forwarded) {
-    return forwarded.split(",")[0].trim()
-  }
-
-  if (realIP) {
-    return realIP
-  }
-
-  return "127.0.0.1"
+  return request.headers.get("cf-connecting-ip") ?? "127.0.0.1"
 }
 
 export function verifyConfession(confession: string): boolean {
