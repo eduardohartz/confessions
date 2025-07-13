@@ -65,6 +65,7 @@ export function verifyConfession(confession: string): boolean {
     ".live",
     ".store",
     "discord.gg",
+    "discord gg",
     "t.me",
     "joinchat",
     "onlyfans",

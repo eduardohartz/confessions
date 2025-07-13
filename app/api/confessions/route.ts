@@ -70,6 +70,14 @@ export async function POST(request: NextRequest) {
     const clientIP = getClientIP(request)
     const ipHash = hashIP(clientIP)
 
+    const blockedIP = await prisma.blockedIP.findUnique({
+      where: { ipHash },
+    })
+
+    if (blockedIP && blockedIP.ipHash === ipHash) {
+      return NextResponse.json({ error: "You are blocked from submitting confessions" }, { status: 403 })
+    }
+
     const lastRateLimit = await prisma.rateLimit.findFirst({
       where: { ipHash },
       orderBy: { lastSubmission: "desc" },

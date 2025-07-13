@@ -29,3 +29,16 @@ model RateLimit {
     @@index([lastSubmission])
     @@map("rate_limits")
 }
+
+model BlockedIP {
+    id     Int    @id @default(autoincrement())
+    ipHash String @unique @map("ip_hash") @db.VarChar(64)
+
+    @@index([ipHash])
+}
+
+model Admin {
+    password String @unique @map("password") @db.VarChar(255)
+
+    @@index([password])
+}
