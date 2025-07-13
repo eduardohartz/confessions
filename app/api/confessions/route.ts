@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
-import { getClientIP, hashIP } from "@/lib/utils"
+import { getClientIP, hashIP, verifyConfession } from "@/lib/utils"
 
 export async function GET(request: NextRequest) {
   try {
@@ -63,12 +63,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 })
     }
 
-    if (content.length > 1000) {
-      return NextResponse.json({ error: "Content too long (max 1000 characters)" }, { status: 400 })
-    }
-
-    if (content.length < 20) {
-      return NextResponse.json({ error: "Content too short (min 20 characters)" }, { status: 400 })
+    if (!verifyConfession(content)) {
+      return NextResponse.json({ error: "Confession does not meet the requirements" }, { status: 400 })
     }
 
     const clientIP = getClientIP(request)
