@@ -85,10 +85,6 @@ export default function ConfessionListAdmin({ refresh, password }: { refresh: nu
   }
 
   const handleDelete = async (confessionId: number) => {
-    if (!confirm("Are you sure you want to delete this confession?")) {
-      return
-    }
-
     setDeletingIds((prev) => new Set(prev).add(confessionId))
 
     try {
@@ -253,11 +249,11 @@ export default function ConfessionListAdmin({ refresh, password }: { refresh: nu
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
-                        variant="outline"
+                        variant="destructive"
                         size="sm"
                         onClick={() => handleBlock(confession.id)}
                         disabled={blockingIds.has(confession.id)}
-                        className="hover:bg-orange-50 border-orange-200 text-orange-600 hover:text-orange-700"
+                        className="hover:bg-orange-50 hover:text-orange-700"
                       >
                         {blockingIds.has(confession.id) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ban className="w-4 h-4" />}
                         Block IP
