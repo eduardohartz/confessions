@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 })
     }
 
-    if (!verifyConfession(content)) {
+    if (!verifyConfession(content, country, nickname)) {
       return NextResponse.json({ error: "Confession does not meet the requirements" }, { status: 400 })
     }
 
