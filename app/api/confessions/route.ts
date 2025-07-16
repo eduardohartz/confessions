@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
         country: country || null,
         isNicknameAnonymous: isNicknameAnonymous || false,
         isCountryAnonymous: isCountryAnonymous || false,
-        ipHash: clientIP,
+        ipHash,
       },
     })
 
