@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import type React from "react"
 import { Inter } from "next/font/google"
 import "./globals.css"
+import Script from "next/script"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -32,6 +33,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className="dark"
     >
+      <Script
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+        async
+        defer
+      />
       <body className={inter.className}>{children}</body>
     </html>
   )

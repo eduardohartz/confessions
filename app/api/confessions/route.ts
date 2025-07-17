@@ -57,7 +57,30 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, nickname, country, isNicknameAnonymous, isCountryAnonymous } = await request.json()
+    const body = await request.json()
+    const { content, nickname, country, isNicknameAnonymous, isCountryAnonymous, token } = body
+
+    if (!token) {
+      return NextResponse.json({ error: "Missing token" }, { status: 400 })
+    }
+
+    const cfVerifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        secret: process.env.TURNSTILE_SECRET_KEY || "",
+        response: token,
+        remoteip: request.headers.get("x-forwarded-for") || "",
+      }),
+    })
+
+    const cfData = await cfVerifyRes.json()
+
+    if (!cfData.success) {
+      return NextResponse.json({ error: "Failed Turnstile verification" }, { status: 403 })
+    }
 
     if (!content || content.trim().length === 0) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 })
