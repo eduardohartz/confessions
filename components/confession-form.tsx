@@ -1,8 +1,9 @@
 "use client"
 
 import type React from "react"
-import { useEffect, useRef, useState } from "react"
+
 import { Loader2, Send } from "lucide-react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -12,12 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { countries } from "@/lib/countries"
 
-declare global {
-  interface Window {
-    turnstile: any
-  }
-}
-
 export default function ConfessionForm({ onSubmit }: { onSubmit: () => void }) {
   const [content, setContent] = useState("")
   const [nickname, setNickname] = useState("")
@@ -26,25 +21,6 @@ export default function ConfessionForm({ onSubmit }: { onSubmit: () => void }) {
   const [isCountryAnonymous, setIsCountryAnonymous] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
-  const [token, setToken] = useState("")
-  const turnstileRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    if (!window.turnstile) return
-
-    const widgetId = window.turnstile.render(turnstileRef.current!, {
-      sitekey: "0x4AAAAAABlbfoKowNjfojZ3",
-      callback: (token: string) => {
-        setToken(token)
-      },
-      size: "invisible",
-      theme: "light",
-    })
-
-    return () => {
-      window.turnstile.remove(widgetId)
-    }
-  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,12 +28,6 @@ export default function ConfessionForm({ onSubmit }: { onSubmit: () => void }) {
     setIsSubmitting(true)
 
     try {
-      if (!token) {
-        setError("Verification failed. Please try again.")
-        setIsSubmitting(false)
-        return
-      }
-
       const response = await fetch("/api/confessions", {
         method: "POST",
         headers: {
@@ -69,7 +39,6 @@ export default function ConfessionForm({ onSubmit }: { onSubmit: () => void }) {
           country: isCountryAnonymous ? "" : country,
           isNicknameAnonymous,
           isCountryAnonymous,
-          token,
         }),
       })
 
@@ -84,7 +53,6 @@ export default function ConfessionForm({ onSubmit }: { onSubmit: () => void }) {
       setCountry("")
       setIsNicknameAnonymous(false)
       setIsCountryAnonymous(false)
-      setToken("")
       onSubmit()
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
@@ -189,8 +157,6 @@ export default function ConfessionForm({ onSubmit }: { onSubmit: () => void }) {
           </div>
 
           {error && <div className="bg-red-500/10 p-3 rounded-md text-red-500 text-sm">{error}</div>}
-
-          <div ref={turnstileRef} />
 
           <Button
             type="submit"
