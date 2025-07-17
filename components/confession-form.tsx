@@ -27,24 +27,65 @@ export default function ConfessionForm({ onSubmit }: { onSubmit: () => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState("")
   const [token, setToken] = useState("")
+  const [turnstileLoaded, setTurnstileLoaded] = useState(false)
   const turnstileRef = useRef<HTMLDivElement | null>(null)
+  const widgetIdRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (!window.turnstile) return
+    const checkTurnstile = () => {
+      if (window.turnstile && !turnstileLoaded) {
+        setTurnstileLoaded(true)
+        renderTurnstile()
+      }
+    }
 
-    const widgetId = window.turnstile.render(turnstileRef.current!, {
-      sitekey: "0x4AAAAAABlbfoKowNjfojZ3",
-      callback: (token: string) => {
-        setToken(token)
-      },
-      size: "invisible",
-      theme: "light",
-    })
+    const renderTurnstile = () => {
+      if (!turnstileRef.current || !window.turnstile) return
+
+      try {
+        if (widgetIdRef.current) {
+          window.turnstile.remove(widgetIdRef.current)
+        }
+
+        widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
+          sitekey: "0x4AAAAAABlbfoKowNjfojZ3",
+          callback: (token: string) => {
+            setToken(token)
+          },
+          "error-callback": () => {
+            setError("Verification failed. Please refresh the page and try again.")
+          },
+          size: "normal",
+          theme: "light",
+        })
+      } catch {
+        setError("Failed to load verification. Please refresh the page.")
+      }
+    }
+
+    checkTurnstile()
+
+    const interval = setInterval(() => {
+      checkTurnstile()
+    }, 100)
+
+    const timeout = setTimeout(() => {
+      clearInterval(interval)
+      if (!turnstileLoaded) {
+        setError("Error. Please try again later.")
+      }
+    }, 10000)
 
     return () => {
-      window.turnstile.remove(widgetId)
+      clearInterval(interval)
+      clearTimeout(timeout)
+      if (widgetIdRef.current && window.turnstile) {
+        try {
+          window.turnstile.remove(widgetIdRef.current)
+        } catch {}
+      }
     }
-  }, [])
+  }, [turnstileLoaded])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -85,6 +126,13 @@ export default function ConfessionForm({ onSubmit }: { onSubmit: () => void }) {
       setIsNicknameAnonymous(false)
       setIsCountryAnonymous(false)
       setToken("")
+
+      if (widgetIdRef.current && window.turnstile) {
+        try {
+          window.turnstile.reset(widgetIdRef.current)
+        } catch {}
+      }
+
       onSubmit()
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred")
@@ -195,7 +243,7 @@ export default function ConfessionForm({ onSubmit }: { onSubmit: () => void }) {
           <Button
             type="submit"
             className="w-full"
-            disabled={isSubmitting || !content.trim()}
+            disabled={isSubmitting || !content.trim() || !token}
           >
             {isSubmitting ? (
               <>

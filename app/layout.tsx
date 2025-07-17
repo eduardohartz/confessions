@@ -35,7 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-        async
+        strategy="beforeInteractive"
       />
       <body className={inter.className}>{children}</body>
     </html>
