@@ -72,7 +72,6 @@ export default function ConfessionList({ refresh }: { refresh: number }) {
 
   const handlePageChange = (page: number) => {
     fetchConfessions(page, pageSize)
-    // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -119,19 +118,7 @@ export default function ConfessionList({ refresh }: { refresh: number }) {
         <div>
           <h2 className="font-bold text-2xl">Submitted Confessions</h2>
           <p className="text-muted-foreground text-sm">
-            Showing
-            {" "}
-            {(pagination.currentPage - 1) * pageSize + 1}
-            {" "}
-            to
-            {" "}
-            {Math.min(pagination.currentPage * pageSize, pagination.totalCount)}
-            {" "}
-            of
-            {" "}
-            {pagination.totalCount}
-            {" "}
-            confessions
+            Showing {(pagination.currentPage - 1) * pageSize + 1} to {Math.min(pagination.currentPage * pageSize, pagination.totalCount)} of {pagination.totalCount} confessions
           </p>
         </div>
 
@@ -184,18 +171,14 @@ export default function ConfessionList({ refresh }: { refresh: number }) {
                   <div className="flex justify-between items-center text-muted-foreground text-sm">
                     <div className="flex items-center gap-2">
                       <span>
-                        by
-                        {" "}
-                        <span className="font-bold underline">{confession.nickname || "Anonymous"}</span>
+                        by <span className="font-bold underline">{confession.nickname || "Anonymous"}</span>
                       </span>
                       {confession.country && (
                         <Badge
                           variant="secondary"
                           className="text-xs"
                         >
-                          {getCountryFlag(confession.country)}
-                          {" "}
-                          {confession.country}
+                          {getCountryFlag(confession.country)} {confession.country}
                         </Badge>
                       )}
                     </div>

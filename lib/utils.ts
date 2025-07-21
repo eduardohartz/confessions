@@ -42,13 +42,11 @@ export function verifyConfession(confession: string, country?: string, nickname?
     }
   }
 
-  // If country is provided, check that it's valid
   if (country) {
     const normalized = country.toLowerCase()
     const valid = countries.some((place) => place.name.toLowerCase() === normalized)
     return valid
   }
 
-  // If no country is provided, that's allowed
   return true
 }

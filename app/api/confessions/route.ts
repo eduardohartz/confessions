@@ -57,10 +57,25 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, nickname, country, isNicknameAnonymous, isCountryAnonymous } = await request.json()
+    const { content, nickname, country, isNicknameAnonymous, isCountryAnonymous, token } = await request.json()
 
-    if (!content || content.trim().length === 0) {
-      return NextResponse.json({ error: "Content is required" }, { status: 400 })
+    if (!token || !content || content.trim().length === 0) {
+      return NextResponse.json({ error: "Confession does not meet the requirements" }, { status: 400 })
+    }
+
+    const verifyResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        secret: process.env.TURNSTILE_SECRET_KEY ?? "",
+        response: token,
+        remoteip: getClientIP(request),
+      }),
+    })
+
+    const turnstileResult = await verifyResponse.json()
+    if (!turnstileResult.success) {
+      return NextResponse.json({ error: "Confession does not meet the requirements" }, { status: 400 })
     }
 
     if (!verifyConfession(content, country, nickname)) {
@@ -70,11 +85,8 @@ export async function POST(request: NextRequest) {
     const clientIP = getClientIP(request)
     const ipHash = hashIP(clientIP)
 
-    const blockedIP = await prisma.blockedIP.findUnique({
-      where: { ipHash },
-    })
-
-    if (blockedIP && blockedIP.ipHash === ipHash) {
+    const blockedIP = await prisma.blockedIP.findUnique({ where: { ipHash } })
+    if (blockedIP) {
       return NextResponse.json({ error: "You are blocked from submitting confessions" }, { status: 403 })
     }
 
@@ -85,12 +97,12 @@ export async function POST(request: NextRequest) {
 
     if (lastRateLimit) {
       const now = new Date()
-      const timeDiff = now.getTime() - lastRateLimit.lastSubmission.getTime()
-      const minutesDiff = timeDiff / (1000 * 60)
+      const diffMs = now.getTime() - lastRateLimit.lastSubmission.getTime()
+      const minutesDiff = diffMs / (1000 * 60)
 
       if (minutesDiff < 5) {
-        const remainingTime = Math.ceil(5 - minutesDiff)
-        return NextResponse.json({ error: `Please wait ${remainingTime} more minute(s) before submitting again` }, { status: 429 })
+        const waitTime = Math.ceil(5 - minutesDiff)
+        return NextResponse.json({ error: `Please wait ${waitTime} more minute(s) before submitting again` }, { status: 429 })
       }
     }
 
@@ -99,8 +111,8 @@ export async function POST(request: NextRequest) {
         content: content.trim(),
         nickname: nickname || null,
         country: country || null,
-        isNicknameAnonymous: isNicknameAnonymous || false,
-        isCountryAnonymous: isCountryAnonymous || false,
+        isNicknameAnonymous: isNicknameAnonymous ?? false,
+        isCountryAnonymous: isCountryAnonymous ?? false,
         ipHash,
       },
     })

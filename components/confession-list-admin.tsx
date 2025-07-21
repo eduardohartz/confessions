@@ -74,7 +74,6 @@ export default function ConfessionListAdmin({ refresh, password }: { refresh: nu
 
   const handlePageChange = (page: number) => {
     fetchConfessions(page, pageSize)
-    // Scroll to top when page changes
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -97,7 +96,6 @@ export default function ConfessionListAdmin({ refresh, password }: { refresh: nu
       })
 
       if (response.ok) {
-        // Refresh the list after successful deletion
         fetchConfessions(pagination.currentPage, pageSize, true)
       } else {
         const error = await response.json()

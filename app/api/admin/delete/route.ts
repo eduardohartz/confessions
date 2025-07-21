@@ -22,7 +22,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Invalid confession ID" }, { status: 400 })
     }
 
-    // Check if confession exists
     const confession = await prisma.confession.findUnique({
       where: { id: confessionId },
     })
@@ -31,7 +30,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Confession not found" }, { status: 404 })
     }
 
-    // Delete the confession
     await prisma.confession.delete({
       where: { id: confessionId },
     })

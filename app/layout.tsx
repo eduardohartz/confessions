@@ -32,6 +32,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className="dark"
     >
+      <head>
+        <script
+          src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=cb"
+          defer
+        ></script>
+      </head>
       <body className={inter.className}>{children}</body>
     </html>
   )
