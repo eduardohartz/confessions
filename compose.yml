@@ -1,0 +1,31 @@
+services:
+  confessions-app:
+    build: .
+    container_name: confessions_app
+    restart: always
+    environment:
+      - DATABASE_URL=mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@confessions-mysql:3306/${MYSQL_DB}
+      - TURNSTILE_SECRET_KEY=${TURNSTILE_SECRET_KEY}
+      - IP_SALT=${IP_SALT}
+      - PORT=${PORT}
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - confessions-mysql
+
+  confessions-mysql:
+    image: mysql:8.1
+    container_name: confessions_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - confessions_mysql_data:/var/lib/mysql
+
+volumes:
+  confessions_mysql_data:
