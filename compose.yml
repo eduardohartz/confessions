@@ -1,5 +1,5 @@
 services:
-  confessions-app:
+  app:
     build: .
     restart: always
     environment:
